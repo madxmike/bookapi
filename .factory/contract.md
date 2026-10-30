@@ -85,7 +85,9 @@ through it. No handler may write a response outside it.
 Body: `{"error":{"code":"...","message":"..."}}`.
 
 Codes: `invalid_isbn`, `invalid_body`, `payload_too_large`, `not_found`,
-`unavailable`. No driver text, SQL, stack traces, or file paths.
+`unavailable`, `internal`. `internal` is used only for a recovered panic; its
+message is stable and discloses nothing. No driver text, SQL, stack traces, or
+file paths.
 
 ## Operations
 
