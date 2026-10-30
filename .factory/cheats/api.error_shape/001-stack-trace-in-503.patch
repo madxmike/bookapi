@@ -1,0 +1,21 @@
+diff --git a/httpapi/httpapi.go b/httpapi/httpapi.go
+--- a/httpapi/httpapi.go
++++ b/httpapi/httpapi.go
+@@ -7,6 +7,7 @@
+ 	"errors"
+ 	"io"
+ 	"net/http"
++	"runtime/debug"
+ 	"strings"
+ 	"time"
+ 
+@@ -188,6 +189,9 @@
+ }
+ 
+ func writeError(w http.ResponseWriter, status int, code, message string) {
++	if code == "unavailable" {
++		message += "\n" + string(debug.Stack())
++	}
+ 	writeJSON(w, status, errorResponse{Error: errorDetail{Code: code, Message: message}})
+ }
+ 

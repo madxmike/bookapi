@@ -121,9 +121,9 @@ Or directly:
 go test ./...
 ```
 
-The unit tests use an in-memory store and need no database. The store
-integration tests run only when `BOOKAPI_TEST_DSN` is set:
+The handler tests use an in-memory store and need no database. The store and
+HTTP integration tests run only when `BOOKAPI_TEST_DSN` is set:
 
 ```sh
-BOOKAPI_TEST_DSN="$BOOKAPI_DSN" go test ./internal/store/...
+BOOKAPI_TEST_DSN="$BOOKAPI_DSN" go test ./...
 ```

@@ -1,0 +1,9 @@
+VERDICTS
+001-delete-noop: rejected | TestDelete, TestDelete/existing_book_returns_204_with_empty_body, TestDelete/get_after_delete_returns_404, TestDelete/isbn-10_path_deletes_canonical_isbn-13, TestDelete/store_error_returns_503_without_leaking_detail, TestDeleteIntegrationConcurrent, TestDeleteIntegrationEffectAndIdempotence, TestDeleteIntegrationISBN10, TestStoreTimeoutReturns503, TestStoreTimeoutReturns503/DELETE
+002-delete-absent-404: rejected | TestDelete, TestDelete/absent_book_returns_204, TestDelete/repeat_delete_returns_204, TestDelete/store_reporting_absence_still_returns_204, TestDeleteIntegrationAbsent, TestDeleteIntegrationConcurrent, TestDeleteIntegrationEffectAndIdempotence
+003-skip-canonicalization: rejected | TestDelete, TestDelete/isbn-10_path_deletes_canonical_isbn-13, TestDeleteIntegrationISBN10
+004-body-on-204: rejected | TestDelete, TestDelete/absent_book_returns_204, TestDelete/existing_book_returns_204_with_empty_body, TestDelete/repeat_delete_returns_204, TestDelete/request_body_is_ignored, TestDelete/store_reporting_absence_still_returns_204, TestDeleteIntegrationAbsent, TestDeleteIntegrationEffectAndIdempotence, TestDeleteIntegrationISBN10
+005-swallow-store-error: rejected | TestDelete, TestDelete/store_error_returns_503_without_leaking_detail, TestStoreTimeoutReturns503, TestStoreTimeoutReturns503/DELETE
+006-store-reports-absent: rejected | TestConcurrentDeletesRemoveRow, TestDeleteAbsentReturnsNil, TestDeleteIntegrationAbsent, TestDeleteIntegrationConcurrent, TestDeleteIntegrationEffectAndIdempotence, TestDeleteIntegrationISBN10, TestDeleteRemovesRow, TestDeleteTwiceReturnsNil
+001-top-level-internal: rejected | internal
+002-nested-internal: rejected | httpapi/internal

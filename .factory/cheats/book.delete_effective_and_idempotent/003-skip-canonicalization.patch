@@ -1,0 +1,18 @@
+diff --git a/httpapi/httpapi.go b/httpapi/httpapi.go
+--- a/httpapi/httpapi.go
++++ b/httpapi/httpapi.go
+@@ -100,12 +100,13 @@
+ 		writeError(w, http.StatusBadRequest, "invalid_isbn", "isbn is not valid")
+ 		return
+ 	}
++	_ = canonical
+ 
+ 	ctx, cancel := context.WithTimeout(r.Context(), storeTimeout)
+ 	defer cancel()
+ 	// An absent row is success. A store that reports absence explicitly must
+ 	// not turn an idempotent DELETE into a 404 or a 503.
+-	if err := st.Delete(ctx, canonical); err != nil && !errors.Is(err, store.ErrNotFound) {
++	if err := st.Delete(ctx, r.PathValue("isbn")); err != nil && !errors.Is(err, store.ErrNotFound) {
+ 		writeError(w, http.StatusServiceUnavailable, "unavailable", "the book store is unavailable")
+ 		return
+ 	}

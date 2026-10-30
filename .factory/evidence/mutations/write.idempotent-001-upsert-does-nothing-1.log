@@ -1,0 +1,5 @@
+--- FAIL: TestPutIsIdempotentAndLastWriteWins (0.01s)
+    integration_test.go:287: stored record = {ISBN:9781124377797 Title:The C Programming Language Author:Kernighan and Ritchie PublishedYear:1988}, want {ISBN:9781124377797 Title:Updated Title Author:Updated Author PublishedYear:1999}
+FAIL
+FAIL	example.com/bookapi/httpapi	0.196s
+FAIL

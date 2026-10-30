@@ -1,0 +1,12 @@
+diff --git a/store/store.go b/store/store.go
+--- a/store/store.go
++++ b/store/store.go
+@@ -49,7 +49,7 @@
+ 
+ // Put inserts the book, replacing any existing row with the same ISBN.
+ func (s *Store) Put(ctx context.Context, b book.Book) error {
+-	const query = `INSERT INTO books (isbn, title, author, published_year) VALUES ($1,$2,$3,$4) ON CONFLICT (isbn) DO UPDATE SET title=EXCLUDED.title, author=EXCLUDED.author, published_year=EXCLUDED.published_year, updated_at=now()`
++	const query = `INSERT INTO books (isbn, title, author, published_year) VALUES ($1,$2,$3,$4) ON CONFLICT (isbn) DO NOTHING`
+ 	if _, err := s.db.ExecContext(ctx, query, b.ISBN, b.Title, b.Author, b.PublishedYear); err != nil {
+ 		return fmt.Errorf("put book %s: %w", b.ISBN, err)
+ 	}

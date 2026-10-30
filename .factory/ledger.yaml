@@ -52,7 +52,7 @@ properties:
     statement: Any valid ISBN-10 or ISBN-13 maps to exactly one ISBN-13, and an invalid check digit is rejected.
     witness: Two rows whose ISBNs differ only by 10/13 form, or a 2xx for an invalid check digit.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: book.persisted
@@ -63,7 +63,7 @@ properties:
     statement: A book written through the API is readable after the process restarts and from a second instance.
     witness: A GET returns 404 after a restart for a book that previously returned 200.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes:
       - postgres_enforces_primary_key_under_concurrency
 
@@ -75,7 +75,7 @@ properties:
     statement: Repeating a PUT with the same ISBN yields the same stored record and one row.
     witness: Two rows after two identical PUTs, or a changed record after an identical PUT.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: write.no_duplicate_under_concurrency
@@ -86,7 +86,7 @@ properties:
     statement: Concurrent PUTs of one ISBN never produce more than one row.
     witness: COUNT(*) > 1 after concurrent writes.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes:
       - postgres_enforces_primary_key_under_concurrency
 
@@ -98,7 +98,7 @@ properties:
     statement: GET returns 200 with the stored fields, 404 with code not_found when absent, and 400 with code invalid_isbn on a bad check digit.
     witness: A 200 for a missing book, a 404 for a stored book, or a 400 body without a code.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: api.error_shape
@@ -109,7 +109,7 @@ properties:
     statement: No error response contains driver text, SQL, a stack trace, or a file path.
     witness: A response body containing "pq:" or "SQLSTATE".
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: api.survives_db_outage
@@ -120,7 +120,7 @@ properties:
     statement: When the database is unreachable, requests return 503 within 2s and /healthz still returns 200.
     witness: A 500 or a hang during a database outage, or /healthz failing.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: ops.liveness_vs_readiness
@@ -131,7 +131,7 @@ properties:
     statement: /readyz reports failure when the database is unreachable; /healthz does not.
     witness: Both endpoints returning the same status during an outage.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: api.body_limit
@@ -142,7 +142,7 @@ properties:
     statement: A request body larger than 1 MiB is rejected with 413.
     witness: A 2 MiB body accepted with 200 or 201.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
   - id: book.delete_effective_and_idempotent
@@ -153,7 +153,7 @@ properties:
     statement: A DELETE of a valid ISBN returns 204 and leaves no row, a second DELETE of the same ISBN also returns 204, and a subsequent GET returns 404.
     witness: A 404 from a DELETE of a valid absent ISBN, a row still present after a 204 DELETE, or a 200 from GET after a successful DELETE.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes:
       - postgres_delete_where_missing_commits_successfully
     conflicts:
@@ -170,7 +170,7 @@ properties:
     witness: A directory named internal exists anywhere outside .git.
     # The implementer adds a structural check to this suite.
     check: {kind: test, command: go test ./...}
-    evidence: none
+    evidence: tested
     assumes: []
 
 non_goals:

@@ -1,0 +1,21 @@
+diff --git a/store/store.go b/store/store.go
+--- a/store/store.go
++++ b/store/store.go
+@@ -74,8 +74,16 @@
+ // Deleting an absent row is not an error.
+ func (s *Store) Delete(ctx context.Context, isbn string) error {
+ 	const query = `DELETE FROM books WHERE isbn = $1`
+-	if _, err := s.db.ExecContext(ctx, query, isbn); err != nil {
++	res, err := s.db.ExecContext(ctx, query, isbn)
++	if err != nil {
+ 		return fmt.Errorf("delete book %s: %w", isbn, err)
++	}
++	n, err := res.RowsAffected()
++	if err != nil {
++		return fmt.Errorf("delete book %s: %w", isbn, err)
++	}
++	if n == 0 {
++		return ErrNotFound
+ 	}
+ 	return nil
+ }

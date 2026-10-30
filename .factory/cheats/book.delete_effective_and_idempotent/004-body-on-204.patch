@@ -1,0 +1,12 @@
+diff --git a/httpapi/httpapi.go b/httpapi/httpapi.go
+--- a/httpapi/httpapi.go
++++ b/httpapi/httpapi.go
+@@ -110,7 +110,7 @@
+ 		return
+ 	}
+ 
+-	w.WriteHeader(http.StatusNoContent)
++	writeJSON(w, http.StatusNoContent, map[string]string{"status": "deleted"})
+ }
+ 
+ func handleNotFound(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,5 @@
+--- FAIL: TestPutTwiceLastWriteWins (0.01s)
+    store_test.go:150: get = {ISBN:9785415979790 Title:First Title Author:First Author PublishedYear:2001}, want {ISBN:9785415979790 Title:Second Title Author:Second Author PublishedYear:2002}
+FAIL
+FAIL	example.com/bookapi/store	0.196s
+FAIL

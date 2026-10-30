@@ -1,0 +1,14 @@
+diff --git a/isbn/isbn.go b/isbn/isbn.go
+--- a/isbn/isbn.go
++++ b/isbn/isbn.go
+@@ -54,10 +54,6 @@
+ 				return "", ErrInvalid
+ 			}
+ 		}
+-		prefix := string(b[:3])
+-		if prefix != "978" && prefix != "979" {
+-			return "", ErrInvalid
+-		}
+ 		if int(b[12]-'0') != checkDigit13(b[:12]) {
+ 			return "", ErrInvalid
+ 		}

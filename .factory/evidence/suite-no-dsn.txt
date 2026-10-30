@@ -1,0 +1,5 @@
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.408s
+ok  	example.com/bookapi/httpapi	3.551s
+ok  	example.com/bookapi/isbn	0.647s
+ok  	example.com/bookapi/store	0.789s

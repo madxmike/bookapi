@@ -1,0 +1,13 @@
+startup: readyz 200
+before outage PUT: status=200 elapsed=0.003s body={"isbn":"9780306406157","title":"Outage Book","author":"Ops","published_year":2024}
+postgres stop: rc=0 waiting for server to shut down.... done
+server stopped
+outage GET: status=503 code=unavailable elapsed=0.001s leaks=[] body={"error":{"code":"unavailable","message":"the book store is unavailable"}}
+outage PUT: status=503 code=unavailable elapsed=0.001s leaks=[] body={"error":{"code":"unavailable","message":"the book store is unavailable"}}
+outage DELETE: status=503 code=unavailable elapsed=0.001s leaks=[] body={"error":{"code":"unavailable","message":"the book store is unavailable"}}
+outage GET /healthz: status=200 elapsed=0.000s body=ok
+outage GET /readyz: status=503 elapsed=0.000s body=not ready
+postgres restart: rc=0 waiting for server to start.... done
+server started
+after restart DELETE cleanup: status=204 elapsed=0.004s body=
+server stopped

@@ -1,0 +1,16 @@
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.191s
+--- FAIL: TestHandlers (0.00s)
+    --- FAIL: TestHandlers/get_977_prefix_with_valid_checksum (0.00s)
+        httpapi_test.go:264: status = 404, want 400 (body "{\"error\":{\"code\":\"not_found\",\"message\":\"no book with that isbn\"}}\n")
+FAIL
+FAIL	example.com/bookapi/httpapi	3.441s
+--- FAIL: TestCanonical (0.00s)
+    --- FAIL: TestCanonical/977_prefix_with_valid_checksum (0.00s)
+        isbn_test.go:52: Canonical("9770131103628") error = <nil>, want ErrInvalid
+    --- FAIL: TestCanonical/977_prefix_with_valid_checksum_and_hyphens (0.00s)
+        isbn_test.go:52: Canonical("977-0-13-110362-8") error = <nil>, want ErrInvalid
+FAIL
+FAIL	example.com/bookapi/isbn	0.283s
+ok  	example.com/bookapi/store	0.573s
+FAIL

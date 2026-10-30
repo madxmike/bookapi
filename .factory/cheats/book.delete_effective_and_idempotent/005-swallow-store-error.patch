@@ -1,0 +1,17 @@
+diff --git a/httpapi/httpapi.go b/httpapi/httpapi.go
+--- a/httpapi/httpapi.go
++++ b/httpapi/httpapi.go
+@@ -103,12 +103,7 @@
+ 
+ 	ctx, cancel := context.WithTimeout(r.Context(), storeTimeout)
+ 	defer cancel()
+-	// An absent row is success. A store that reports absence explicitly must
+-	// not turn an idempotent DELETE into a 404 or a 503.
+-	if err := st.Delete(ctx, canonical); err != nil && !errors.Is(err, store.ErrNotFound) {
+-		writeError(w, http.StatusServiceUnavailable, "unavailable", "the book store is unavailable")
+-		return
+-	}
++	_ = st.Delete(ctx, canonical)
+ 
+ 	w.WriteHeader(http.StatusNoContent)
+ }
