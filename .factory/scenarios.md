@@ -35,3 +35,20 @@
 - An invalid-ISBN DELETE reaching storage, changing a row, or returning 204 instead of 400 (`book.delete_effective_and_idempotent`).
 - A DELETE during a database outage returning 500, hanging past 2 s, or containing driver text (`api.survives_db_outage`, `api.error_shape`).
 - A directory named `internal` exists in the module (`code.no_internal_package`).
+
+| 23 | `GET /books` with two stored books | 200, JSON array ordered by ISBN | `api.list_books` |
+| 24 | `GET /books?author=Kernighan` | only that author's books | `api.list_books` |
+| 25 | `GET /books?author=Nobody` | 200 with `[]` | `api.list_books` |
+| 26 | `HEAD /books/{isbn}` for a stored book | same status and headers as GET, empty body | `api.head_book` |
+| 27 | `HEAD /books/{isbn}` for a missing book | 404, empty body | `api.head_book` |
+| 28 | Any route, including health, readiness, 404, and errors | carries `X-Content-Type-Options: nosniff` and `Cache-Control: no-store` | `api.handler_uniform` |
+| 29 | A new handler added to the route table | covered by the uniformity check without a new test | `api.handler_uniform` |
+| 30 | A handler registered directly on a mux outside the table | the registration check fails | `api.handler_registration` |
+
+## Must never happen
+
+- A route response missing either common header (`api.handler_uniform`).
+- A handler-shaped function absent from the route table (`api.handler_registration`).
+- A 404 for an empty book list (`api.list_books`).
+- A HEAD response carrying a body (`api.head_book`).
+

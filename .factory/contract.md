@@ -48,6 +48,30 @@ Body: `{"title": string, "author": string, "published_year": integer}`.
 - After success, GET returns 404.
 - Request bodies are ignored.
 
+## GET /books
+
+- 200 with a JSON array of book objects.
+- Ordered by `isbn` ascending.
+- An optional `author` query parameter filters to an exact match.
+- No matches returns `200 []`.
+- 503 `unavailable` when storage is unreachable.
+
+## HEAD /books/{isbn}
+
+- Identical status and headers to `GET /books/{isbn}`, including `Content-Length`.
+- No body.
+
+## Common response headers
+
+Every response from every route, including health, readiness, the route-not-found
+handler, and every error, carries:
+
+- `X-Content-Type-Options: nosniff`
+- `Cache-Control: no-store`
+
+The headers are applied at one boundary. No handler may write a response outside
+it.
+
 ## Identity
 
 - The canonical form is ISBN-13.

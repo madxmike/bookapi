@@ -42,6 +42,12 @@ scope:
     - id: D13
       decision: Internal structure is the implementer's choice; properties constrain observable behavior and the no-internal rule only.
       rationale: A property system regenerates behavior, not a particular package layout.
+    - id: D16
+      decision: Common response headers are applied at one boundary, not by each handler.
+      rationale: A property that every handler must remember is a property that will be missed.
+    - id: D17
+      decision: Handler is a semantic type: any function with the http.HandlerFunc shape. The route table is the source of truth, and a check fails if a handler is not reachable through it.
+      rationale: Handlers are not a declared type in Go, so the property must be enforced by discovery as well as by construction.
 
 properties:
   - id: isbn.canonical
@@ -171,6 +177,49 @@ properties:
     # The implementer adds a structural check to this suite.
     check: {kind: test, command: go test ./...}
     evidence: tested
+    assumes: []
+  - id: api.list_books
+    kind: primitive
+    scope: repo
+    locus: code
+    polarity: require
+    statement: GET /books returns 200 with a JSON array of books ordered by ISBN; an optional author query filters exact matches; no matches returns an empty array.
+    witness: A non-array body, unordered results, or a 404 for an empty result.
+    check: {kind: test, command: go test ./...}
+    evidence: none
+    assumes: []
+
+  - id: api.head_book
+    kind: primitive
+    scope: repo
+    locus: code
+    polarity: require
+    statement: HEAD /books/{isbn} returns the same status and headers as GET, including Content-Length, with no body.
+    witness: A HEAD body, or a status or header differing from GET.
+    check: {kind: test, command: go test ./...}
+    evidence: none
+    assumes: []
+
+  - id: api.handler_uniform
+    kind: primitive
+    scope: repo
+    locus: code
+    polarity: require
+    statement: Every response from every route carries X-Content-Type-Options nosniff and Cache-Control no-store, and every error response uses the stable JSON envelope.
+    witness: A route response missing either header, or an error body that is not the envelope.
+    check: {kind: test, command: go test ./...}
+    evidence: none
+    assumes: []
+
+  - id: api.handler_registration
+    kind: primitive
+    scope: repo
+    locus: code
+    polarity: forbid
+    statement: Every handler-shaped function is reachable through the route table, and no route is registered outside it.
+    witness: A handler function absent from the route table, or a direct mux registration outside the table.
+    check: {kind: test, command: go test ./...}
+    evidence: none
     assumes: []
 
 non_goals:

@@ -18,3 +18,9 @@ tests.
 - `go test ./...` passes.
 - Each property's required evidence is recorded in `.factory/evidence.md`.
 - `go vet ./...` and `gofmt -l` are clean.
+
+| R8 | List books with an author filter | `api.list_books` |
+| R9 | HEAD mirrors GET for one book | `api.head_book` |
+| R10 | One route boundary with a route table and semantic handler discovery | `api.handler_uniform`, `api.handler_registration` |
+| R11 | Adversarial: a direct mux registration must be rejected | `api.handler_registration` |
+
