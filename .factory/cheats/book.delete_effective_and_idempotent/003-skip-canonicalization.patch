@@ -1,0 +1,23 @@
+diff --git a/examples/bookapi/internal/httpapi/httpapi.go b/examples/bookapi/internal/httpapi/httpapi.go
+index eb81ecd..7a900a3 100644
+--- a/examples/bookapi/internal/httpapi/httpapi.go
++++ b/examples/bookapi/internal/httpapi/httpapi.go
+@@ -95,15 +95,15 @@ func handleGet(w http.ResponseWriter, r *http.Request, st Store) {
+ }
+ 
+ func handleDelete(w http.ResponseWriter, r *http.Request, st Store) {
+-	canonical, err := isbn.Canonical(r.PathValue("isbn"))
+-	if err != nil {
++	pathISBN := r.PathValue("isbn")
++	if _, err := isbn.Canonical(pathISBN); err != nil {
+ 		writeError(w, http.StatusBadRequest, "invalid_isbn", "isbn is not valid")
+ 		return
+ 	}
+ 
+ 	ctx, cancel := context.WithTimeout(r.Context(), storeTimeout)
+ 	defer cancel()
+-	if err := st.Delete(ctx, canonical); err != nil {
++	if err := st.Delete(ctx, pathISBN); err != nil {
+ 		writeError(w, http.StatusServiceUnavailable, "unavailable", "the book store is unavailable")
+ 		return
+ 	}

@@ -1,0 +1,4 @@
+/api
+*.test
+coverage.out
+.env
