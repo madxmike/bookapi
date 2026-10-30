@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"example.com/bookapi/internal/book"
+	"example.com/bookapi/book"
 )
 
 func testDSN(t *testing.T) string {

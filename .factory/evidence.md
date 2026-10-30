@@ -44,3 +44,10 @@ The gate initially flagged `internal/store/store.go` for internal error text. Th
 ## Corner not covered
 
 `api.body_limit` is tested at the handler. The server's `MaxHeaderBytes` and the proxy's body limit are not. If this service is placed behind a proxy that buffers bodies, the property must be re-tested at that boundary.
+
+| `code.no_internal_package` | tested | `cmd/api/structure_test.go`; negative control failed before the refactor; cheats 001 and 002 rejected | none |
+
+## Structural restriction
+
+`code.no_internal_package` is enforced by `TestNoInternalPackage`. Before the refactor it failed with `forbidden internal package: internal`; after moving `book`, `isbn`, `store`, and `httpapi` to the module root it passes. Two cheats are rejected: a placeholder file under a restored `internal/`, and a nested `httpapi/internal/`.
+

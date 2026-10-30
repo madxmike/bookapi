@@ -11,8 +11,8 @@ import (
 	"sync"
 	"testing"
 
-	"example.com/bookapi/internal/httpapi"
-	"example.com/bookapi/internal/store"
+	"example.com/bookapi/httpapi"
+	"example.com/bookapi/store"
 )
 
 // These tests close property book.delete_effective_and_idempotent against a

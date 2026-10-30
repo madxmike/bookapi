@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"example.com/bookapi/internal/book"
-	"example.com/bookapi/internal/isbn"
-	"example.com/bookapi/internal/store"
+	"example.com/bookapi/book"
+	"example.com/bookapi/isbn"
+	"example.com/bookapi/store"
 )
 
 const (
