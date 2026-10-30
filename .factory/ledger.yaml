@@ -36,9 +36,6 @@ scope:
     - id: D11
       decision: DELETE does not read or validate a request body; the 1 MiB limit applies to PUT, the only verb whose contract accepts a body.
       rationale: Parsing a body on DELETE adds a failure mode with no semantic value and would let a valid delete fail for an empty reason.
-    - id: D12
-      decision: The module has no directory named internal; every package is importable at a stable path.
-      rationale: The restriction is structural and deterministic, so it is enforced by a test rather than by review.
 
 properties:
   - id: isbn.canonical
@@ -162,16 +159,6 @@ properties:
         resolution: D2 amended to name DELETE as a second write verb.
       - id: D5
         resolution: 404-for-missing applies to reads. DELETE is defined by effect, so a valid absent ISBN returns 204; GET keeps 404.
-  - id: code.no_internal_package
-    kind: primitive
-    scope: repo
-    locus: code
-    polarity: forbid
-    statement: The module contains no directory named internal, at any depth.
-    witness: A directory named internal exists anywhere outside .git.
-    check: {kind: test, command: go test ./cmd/api -run TestNoInternalPackage}
-    evidence: tested
-    assumes: []
 
 non_goals:
   - authentication

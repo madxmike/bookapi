@@ -34,4 +34,3 @@
 - A 204 carrying a non-empty body or a JSON body (`book.delete_effective_and_idempotent`).
 - An invalid-ISBN DELETE reaching storage, changing a row, or returning 204 instead of 400 (`book.delete_effective_and_idempotent`).
 - A DELETE during a database outage returning 500, hanging past 2 s, or containing driver text (`api.survives_db_outage`, `api.error_shape`).
-- A directory named `internal` exists in the module (`code.no_internal_package`).

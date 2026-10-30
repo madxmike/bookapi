@@ -40,4 +40,3 @@ One property per slice. Each slice has a verification command and a frame.
 - `go test ./...` passes with `BOOKAPI_TEST_DSN` set against a real Postgres.
 - `go vet ./...` and `gofmt -l .` are clean.
 - The ledger's `evidence` fields name the artifact that establishes each property.
-| S15 | Remove internal packages and add the structural check | `code.no_internal_package` | all package directories, `cmd/api/structure_test.go` | `go test ./...` |

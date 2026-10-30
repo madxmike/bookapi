@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"example.com/bookapi/httpapi"
-	"example.com/bookapi/store"
+	"example.com/bookapi/internal/httpapi"
+	"example.com/bookapi/internal/store"
 )
 
 func main() {

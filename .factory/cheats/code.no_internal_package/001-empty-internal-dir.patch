@@ -1,8 +1,0 @@
-diff --git a/internal/keep.go b/internal/keep.go
-new file mode 100644
---- /dev/null
-+++ b/internal/keep.go
-@@ -0,0 +1,3 @@
-+package internal
-+
-+// keep

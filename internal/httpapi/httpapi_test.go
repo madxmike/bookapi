@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"example.com/bookapi/book"
-	"example.com/bookapi/store"
+	"example.com/bookapi/internal/book"
+	"example.com/bookapi/internal/store"
 )
 
 const (

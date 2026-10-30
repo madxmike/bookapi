@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"example.com/bookapi/book"
+	"example.com/bookapi/internal/book"
 )
 
 //go:embed migrations/*.sql

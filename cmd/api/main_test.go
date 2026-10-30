@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"example.com/bookapi/book"
+	"example.com/bookapi/internal/book"
 )
 
 type stubStore struct{}

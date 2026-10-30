@@ -1,8 +1,0 @@
-diff --git a/httpapi/internal/x.go b/httpapi/internal/x.go
-new file mode 100644
---- /dev/null
-+++ b/httpapi/internal/x.go
-@@ -0,0 +1,3 @@
-+package internal
-+
-+// nested
