@@ -1,0 +1,50 @@
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.935s
+ok  	example.com/bookapi/httpapi	6.583s
+ok  	example.com/bookapi/isbn	0.462s
+ok  	example.com/bookapi/store	0.703s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.936s
+ok  	example.com/bookapi/httpapi	6.582s
+ok  	example.com/bookapi/isbn	0.459s
+ok  	example.com/bookapi/store	0.708s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.934s
+ok  	example.com/bookapi/httpapi	6.573s
+ok  	example.com/bookapi/isbn	0.469s
+ok  	example.com/bookapi/store	0.718s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.927s
+ok  	example.com/bookapi/httpapi	6.575s
+ok  	example.com/bookapi/isbn	0.622s
+ok  	example.com/bookapi/store	0.590s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.942s
+ok  	example.com/bookapi/httpapi	6.593s
+ok  	example.com/bookapi/isbn	0.469s
+ok  	example.com/bookapi/store	0.712s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.950s
+ok  	example.com/bookapi/httpapi	6.598s
+ok  	example.com/bookapi/isbn	0.478s
+ok  	example.com/bookapi/store	0.719s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.952s
+ok  	example.com/bookapi/httpapi	6.601s
+ok  	example.com/bookapi/isbn	0.480s
+ok  	example.com/bookapi/store	0.726s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.936s
+ok  	example.com/bookapi/httpapi	6.565s
+ok  	example.com/bookapi/isbn	0.464s
+ok  	example.com/bookapi/store	0.713s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.938s
+ok  	example.com/bookapi/httpapi	6.598s
+ok  	example.com/bookapi/isbn	0.468s
+ok  	example.com/bookapi/store	0.709s
+?   	example.com/bookapi/book	[no test files]
+ok  	example.com/bookapi/cmd/api	0.948s
+ok  	example.com/bookapi/httpapi	6.594s
+ok  	example.com/bookapi/isbn	0.627s
+ok  	example.com/bookapi/store	0.599s

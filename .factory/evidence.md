@@ -121,17 +121,116 @@ This supplements the automated handler tests; it is a manual run, not part of
 - `code.no_internal_package` checks directory and symlink names. It does not
   inspect file contents, because the property is structural.
 
-## R8-R11 evidence (2026-10-29)
+## R8-R11 evidence (2026-10-29, verifier closure)
 
-These rows cover the four properties added in this batch. The property
-statements, witnesses, polarity, contract, and scenarios were not changed.
+These rows cover the four properties added in this batch plus the verifier
+closure. The property statements, witnesses, polarity, contract, and scenarios
+were not changed.
 
 | Property | Class | Artifact | Assumption |
 |---|---|---|---|
-| `api.list_books` | tested | `httpapi/list_head_test.go:TestList` (ordered, exact author filter, `200 []` for no matches, 503 envelope on store error), `TestListTimeoutReturns503`, `TestListEmptyAuthorIsAnExactFilter`; `httpapi/integration_list_head_test.go:TestListIntegrationOrdered`, `TestListIntegrationAuthorFilter`; `httpapi/live_server_test.go:TestRealServerHeadAndList`; `store/store_list_test.go:TestListOrderedAndFiltered`, `TestListNoMatchesIsEmptyNotNil` | none |
-| `api.head_book` | tested | `httpapi/list_head_test.go:TestHeadMirrorsGet` (stored, missing, invalid; same status, `Content-Type`, `Content-Length`, common headers; empty body); `httpapi/integration_list_head_test.go:TestHeadIntegrationMirrorsGet` against Postgres; `httpapi/live_server_test.go:TestRealServerHeadAndList` behind net/http; `TestEveryRouteIsUniform/HEAD_/books/{isbn}` | none |
+| `api.list_books` | tested | `httpapi/list_head_test.go:TestList` (returns exactly the store's books, exact author filter, `200 []` for no matches, 503 envelope on store error), `TestListTimeoutReturns503`, `TestListEmptyAuthorIsAnExactFilter`; `httpapi/integration_list_head_test.go:TestListIntegrationOrdered`, `TestListIntegrationAuthorFilter`; `httpapi/live_server_test.go:TestRealServerHeadAndList`; `store/store_list_test.go:TestListOrderedAndFiltered`, `TestListNoMatchesIsEmptyNotNil` | none |
+| `api.head_book` | tested | `httpapi/list_head_test.go:TestHeadMirrorsGet` (stored, missing, invalid); `TestHeadMirrorsEveryGetStatus` behind a real net/http server for 200, 400, 404, 503, and 500 (recovered store panic); `httpapi/integration_list_head_test.go:TestHeadIntegrationMirrorsGet` against Postgres; `httpapi/live_server_test.go:TestRealServerHeadAndList`; `TestEveryRouteIsUniform/HEAD_/books/{isbn}`. Negative control `api.head_book/001-head-503-204` rejected | none |
 | `api.handler_uniform` | tested | By construction: `httpapi/response.go` exposes only `json` (2xx), `text` (2xx), `noContent`, and `fail(failure)`; `response.flush` is the only writer and re-applies both common headers after handler headers. Discovery/behavior: `httpapi/uniformity_test.go:TestEveryRouteIsUniform` walks `s.routes()` and asserts both headers on every entry plus the envelope on every 4xx/5xx; `TestEveryErrorClassIsUniform` covers health, ready, 400, 404, 413, 503, 204, and HEAD. `httpapi/live_server_test.go:TestRealServerHeadAndList` checks both headers on real net/http responses. Negative control `001-missing-nosniff` rejected | none |
-| `api.handler_registration` | tested | `httpapi/discovery_test.go:TestRouteTableIsTheOnlyRegistration` parses the module (test files excluded) and rejects a handler-shaped function absent from `routes`, a `Handle`/`HandleFunc` call outside `buildMux`, a non-table-driven registration inside `buildMux`, and an anonymous/foreign handler in a table entry. Synthetic controls: `TestDiscoveryRejectsDirectMuxRegistration`, `TestDiscoveryRejectsRegistrationOutsideBuildMux`, `TestDiscoveryRejectsLiteralPathInTheTableLoop`, `TestDiscoveryRejectsHandlerOutsideRouteTable`, `TestDiscoveryRejectsAnonymousRouteHandler`, `TestDiscoveryRejectsHandlerStoredInAVariable`. Real-tree controls: `001-direct-mux-registration` (rejected as both a non-table-driven registration and an anonymous handler), `002-orphan-handler` rejected | none |
+| `api.handler_registration` | tested | `httpapi/discovery_test.go:TestRouteTableIsTheOnlyRegistration` type-checks every main-module package with `go/types` and rejects a handler-shaped function absent from `routes`, a `Handle`/`HandleFunc` call outside the table loop, a non-table-driven or additional registration in `buildMux`, a second `ServeHTTP` dispatch, method values of registration/dispatch methods, any reference to `http.DefaultServeMux` or `reflect.MakeFunc`, and anonymous/foreign handlers. Synthetic controls: the five verifier bypasses plus the earlier direct-registration, literal-path, orphan, anonymous, and stored-in-variable controls. Real-tree controls: `001-direct-mux-registration`, `002-orphan-handler` rejected | none |
+
+### Type-aware registration discovery
+
+`httpapi/discovery_test.go` runs `go list -export -deps -json ./...`, parses
+every main-module package from source, and type-checks it with `go/types`.
+Export data is used only for imports, so unexported declarations such as
+`httpapi.response` stay visible.
+
+The check therefore:
+
+- resolves aliases and assignability rather than matching spelling:
+  `type W = http.ResponseWriter`, `type R = response`, and `*R` all count as
+  handler-shaped;
+- records reachability from the `handler:` field values in `routes()` by
+  `*types.Func` object, not by name;
+- rejects method values and method expressions of `Handle`, `HandleFunc`, and
+  `ServeHTTP`, and any method value/expression on `*http.ServeMux`;
+- rejects any reference to `http.DefaultServeMux` or `reflect.MakeFunc`,
+  including through aliased or dot imports, and any reference to the package
+  functions `http.Handle`/`http.HandleFunc`;
+- requires `buildMux` to be exactly `mux := http.NewServeMux()`, a
+  `range s.routes()` whose only statement is
+  `mux.Handle(rt.path(), adapt(rt.handler))`, and `return mux`;
+- requires `ServeHTTP` to have no top-level control flow and exactly one
+  top-level, unconditional `s.mux.ServeHTTP` call, with no other `ServeHTTP`
+  call anywhere else in the module.
+
+Synthetic bypass controls, each rejected:
+
+| Bypass | Diagnostic |
+|---|---|
+| (a) `init()` takes `f := http.DefaultServeMux.HandleFunc; f("/x", h)`, handler declared with `type W = http.ResponseWriter` | `reference to http.DefaultServeMux`, `method value (*net/http.ServeMux).HandleFunc bypasses the route table`, `handler fixture/httpapi.handlerWithAlias is not reachable through the route table` |
+| (b) renamed helper inside `buildMux` registers an extra route | `buildMux must be the single table-driven registration loop`, `route registration outside the route table` |
+| (c) a second dispatch path `http.DefaultServeMux.ServeHTTP(w, r)` | `ServeHTTP must have exactly one unconditional dispatch to the mux`, `ServeHTTP dispatch outside the single boundary`, `reference to http.DefaultServeMux` |
+| (d) `reflect.MakeFunc` handler | `reference to reflect.MakeFunc` |
+| (e) handler reachable only through the catch-all, declared with `type R = response` | `handler (*fixture/httpapi.server).backdoor is not reachable through the route table` |
+
+Real-tree cheats reject with
+`buildMux must be the single table-driven registration loop`,
+`route registration outside the route table`, `anonymous handler is not
+reachable through the route table`, and
+`handler (*example.com/bookapi/httpapi.server).orphan is not reachable through
+the route table`; both return green after revert.
+
+### HEAD parity
+
+`TestHeadMirrorsEveryGetStatus` runs behind `httptest.NewServer`, so HEAD body
+suppression is observed at the real net/http boundary. It covers every GET
+status the read route can produce:
+
+| Status | Trigger |
+|---|---|
+| 200 | stored book |
+| 400 | invalid ISBN |
+| 404 | valid, absent ISBN |
+| 503 | store error |
+| 500 | store panic, recovered by the response boundary |
+
+For each, HEAD and GET have the same status, HEAD's `Content-Length` equals the
+GET body length, HEAD has an empty body, and the headers are equal after
+removing the protocol-generated `Date` header.
+
+`api.head_book/001-head-503-204.patch` makes HEAD 503 return 204 while GET
+still returns 503. It is rejected with:
+`HEAD status = 204, want 503 (body "")`. It returns green after revert.
+
+### List ordering (D18)
+
+Ordering is owned by storage (D18). The handler-level fake now returns an
+unsorted slice, and `TestList` checks membership and filtering, not order, so
+it cannot claim ordering from a pre-sorted fake. Ordering evidence is:
+
+- `store/store_list_test.go:TestListOrderedAndFiltered` inserts the higher
+  ISBN first and asserts `[low, high]`;
+- `httpapi/integration_list_head_test.go:TestListIntegrationOrdered` does the
+  same through Postgres and the HTTP handler, using an isolated `author`
+  filter, and asserts `[low, high]`.
+
+Both use scrambled inserts, so insertion order cannot satisfy the assertion.
+
+### Fixture collision fix
+
+`uniqueISBN`, `uniqueAuthor`, and `uniqueTestISBN` no longer use
+`time.Now().UnixNano()`. Each test binary draws a random base with
+`crypto/rand` and allocates identifiers with `sync/atomic`, so successive calls
+cannot collide and parallel test binaries start from independent bases.
+`.factory/evidence/suite-with-postgres-10x-r8.txt` records ten consecutive full
+suite runs with `BOOKAPI_TEST_DSN`; all 40 package results are `ok`.
+
+### Residual risk
+
+The registration discovery is static. It cannot see handlers or registrations
+created by `unsafe` pointer tricks, assembly, plugins, or other dynamic code
+generation; `reflect.MakeFunc` is explicitly rejected, but a future dynamic
+mechanism would need review because an AST/type check cannot prove its runtime
+behavior. Test files are excluded because they contain fakes and helpers, not
+service routes. Protocol-level errors generated by `net/http` before routing
+are outside the route boundary.
 
 ### Route table and automatic coverage
 
@@ -158,10 +257,14 @@ that calls `mux.Handle`, and it does so in a `range s.routes()` loop with
 
 - `.factory/evidence/suite-no-dsn-r8.txt` — `go test ./... -count=1`.
 - `.factory/evidence/suite-with-postgres-r8.txt` — `BOOKAPI_TEST_DSN=... go test ./... -count=1`.
+- `.factory/evidence/suite-with-postgres-10x-r8.txt` — ten consecutive runs with the DSN.
 - `.factory/evidence/suite-with-postgres-race-r8.txt` — `BOOKAPI_TEST_DSN=... go test -race ./... -count=1`.
 - `.factory/evidence/vet-r8.txt` — `go vet ./...` (empty).
 - `.factory/evidence/gofmt-r8.txt` — `gofmt -l .` (empty).
 - `.factory/evidence/cheat-api.handler_registration.txt` — both real-tree cheats rejected, then green after revert.
 - `.factory/evidence/cheat-api.handler_uniform.txt` — missing `nosniff` rejected on every route, then green after revert.
+- `.factory/evidence/cheat-api.head_book.txt` — HEAD 503 -> 204 rejected, then green after revert.
 - `.factory/cheats/api.handler_registration/results.md`.
 - `.factory/cheats/api.handler_uniform/results.md`.
+- `.factory/cheats/api.head_book/001-head-503-204.expect.md`.
+- `.factory/cheats/api.head_book/results.md`.

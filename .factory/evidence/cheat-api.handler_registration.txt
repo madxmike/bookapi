@@ -1,19 +1,21 @@
 --- 001-direct-mux-registration: before revert ---
---- FAIL: TestRouteTableIsTheOnlyRegistration (0.00s)
-    discovery_test.go:62: route registration violations:
-        ../httpapi/httpapi.go:94:34: anonymous handler is not reachable through the route table
-        ../httpapi/httpapi.go:94:2: route registration is not table-driven
+--- FAIL: TestRouteTableIsTheOnlyRegistration (0.18s)
+    discovery_test.go:52: route registration violations:
+        /Users/madxmike/workplace/bookapi/httpapi/httpapi.go:95:1: buildMux must be the single table-driven registration loop
+        /Users/madxmike/workplace/bookapi/httpapi/httpapi.go:100:34: anonymous handler is not reachable through the route table
+        /Users/madxmike/workplace/bookapi/httpapi/httpapi.go:98:3: route registration outside the route table
+        /Users/madxmike/workplace/bookapi/httpapi/httpapi.go:100:2: route registration outside the route table
 FAIL
-FAIL	example.com/bookapi/httpapi	0.227s
+FAIL	example.com/bookapi/httpapi	0.429s
 FAIL
 --- 001 after revert (must pass) ---
-ok  	example.com/bookapi/httpapi	0.217s
+ok  	example.com/bookapi/httpapi	0.373s
 --- 002-orphan-handler: before revert ---
---- FAIL: TestRouteTableIsTheOnlyRegistration (0.00s)
-    discovery_test.go:62: route registration violations:
-        ../httpapi/httpapi.go:97:1: handler httpapi|server|orphan is not reachable through the route table
+--- FAIL: TestRouteTableIsTheOnlyRegistration (0.17s)
+    discovery_test.go:52: route registration violations:
+        /Users/madxmike/workplace/bookapi/httpapi/httpapi.go:103:1: handler (*example.com/bookapi/httpapi.server).orphan is not reachable through the route table
 FAIL
-FAIL	example.com/bookapi/httpapi	0.238s
+FAIL	example.com/bookapi/httpapi	0.426s
 FAIL
 --- 002 after revert (must pass) ---
-ok  	example.com/bookapi/httpapi	0.203s
+ok  	example.com/bookapi/httpapi	0.370s

@@ -2,12 +2,14 @@ package store
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"os"
 	"sync"
+	"sync/atomic"
 	"testing"
-	"time"
 
 	"example.com/bookapi/book"
 )
@@ -44,11 +46,26 @@ func testStore(t *testing.T) *Store {
 	return s
 }
 
+// uniqueSeq makes identifiers collision-free within this test binary. The
+// random base keeps parallel test binaries from overlapping.
+var uniqueSeq atomic.Uint64
+
+var uniqueBase = func() uint64 {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		panic(err)
+	}
+	return binary.BigEndian.Uint64(b[:]) % 1_000_000_000
+}()
+
+func uniqueID() uint64 {
+	return (uniqueBase + uniqueSeq.Add(1)) % 1_000_000_000
+}
+
 // uniqueISBN returns a valid ISBN-13 that does not collide with other tests.
 func uniqueISBN(t *testing.T) string {
 	t.Helper()
-	n := (time.Now().UnixNano() ^ int64(os.Getpid())) % 1_000_000_000
-	first12 := fmt.Sprintf("978%09d", n)
+	first12 := fmt.Sprintf("978%09d", uniqueID())
 	sum := 0
 	for i := 0; i < len(first12); i++ {
 		d := int(first12[i] - '0')

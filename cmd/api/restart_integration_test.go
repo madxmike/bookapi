@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
@@ -87,10 +90,23 @@ func startServer(t *testing.T, bin, dsn, addr string) *runningServer {
 	return nil
 }
 
+var uniqueSeq atomic.Uint64
+
+var uniqueBase = func() uint64 {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		panic(err)
+	}
+	return binary.BigEndian.Uint64(b[:]) % 1_000_000_000
+}()
+
+func uniqueID() uint64 {
+	return (uniqueBase + uniqueSeq.Add(1)) % 1_000_000_000
+}
+
 func uniqueTestISBN(t *testing.T) string {
 	t.Helper()
-	n := (time.Now().UnixNano() ^ int64(os.Getpid())) % 1_000_000_000
-	first12 := fmt.Sprintf("978%09d", n)
+	first12 := fmt.Sprintf("978%09d", uniqueID())
 	sum := 0
 	for i := 0; i < len(first12); i++ {
 		d := int(first12[i] - '0')

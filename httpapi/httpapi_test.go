@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -92,7 +91,6 @@ func (f *fakeStore) List(_ context.Context, author *string) ([]book.Book, error)
 		}
 		out = append(out, b)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ISBN < out[j].ISBN })
 	return out, nil
 }
 

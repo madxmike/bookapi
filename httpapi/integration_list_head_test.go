@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"sort"
 	"testing"
-	"time"
 )
 
 func uniqueAuthor(t *testing.T) string {
 	t.Helper()
-	return fmt.Sprintf("it-author-%d-%d", time.Now().UnixNano(), os.Getpid())
+	return fmt.Sprintf("it-author-%d-%d", uniqueBase, uniqueSeq.Add(1))
 }
 
 func putBook(t *testing.T, h http.Handler, isbn, author string) bookJSON {

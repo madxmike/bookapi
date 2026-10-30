@@ -3,17 +3,15 @@ package store
 import (
 	"context"
 	"fmt"
-	"os"
 	"sort"
 	"testing"
-	"time"
 
 	"example.com/bookapi/book"
 )
 
 func uniqueAuthor(t *testing.T) string {
 	t.Helper()
-	return fmt.Sprintf("list-author-%d-%d", time.Now().UnixNano(), os.Getpid())
+	return fmt.Sprintf("list-author-%d-%d", uniqueBase, uniqueSeq.Add(1))
 }
 
 func TestListOrderedAndFiltered(t *testing.T) {

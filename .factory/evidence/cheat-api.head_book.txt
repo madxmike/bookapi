@@ -1,0 +1,11 @@
+--- 001-head-503-204: before revert ---
+--- FAIL: TestHeadMirrorsEveryGetStatus (0.00s)
+    --- FAIL: TestHeadMirrorsEveryGetStatus/503 (0.00s)
+        list_head_test.go:224: HEAD status = 204, want 503 (body "")
+        list_head_test.go:233: HEAD ContentLength = -1, want 74
+        list_head_test.go:242: HEAD headers = map[Cache-Control:[no-store] X-Content-Type-Options:[nosniff]], GET headers = map[Cache-Control:[no-store] Content-Length:[74] Content-Type:[application/json] X-Content-Type-Options:[nosniff]]
+FAIL
+FAIL	example.com/bookapi/httpapi	0.260s
+FAIL
+--- after revert (must pass) ---
+ok  	example.com/bookapi/httpapi	0.235s

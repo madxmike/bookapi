@@ -42,7 +42,7 @@
     --- FAIL: TestEveryErrorClassIsUniform/head_missing (0.00s)
         uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
 FAIL
-FAIL	example.com/bookapi/httpapi	1.233s
+FAIL	example.com/bookapi/httpapi	1.228s
 FAIL
 --- after revert (must pass) ---
-ok  	example.com/bookapi/httpapi	1.216s
+ok  	example.com/bookapi/httpapi	1.220s
