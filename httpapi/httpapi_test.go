@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -34,6 +35,7 @@ type fakeStore struct {
 	getErr         error
 	putErr         error
 	delErr         error
+	listErr        error
 	lastPut        book.Book
 	puts           int
 	deletes        int
@@ -77,6 +79,21 @@ func (f *fakeStore) Delete(_ context.Context, isbn string) error {
 	f.lastDeleteISBN = isbn
 	delete(f.books, isbn)
 	return nil
+}
+
+func (f *fakeStore) List(_ context.Context, author *string) ([]book.Book, error) {
+	if f.listErr != nil {
+		return nil, f.listErr
+	}
+	out := make([]book.Book, 0, len(f.books))
+	for _, b := range f.books {
+		if author != nil && b.Author != *author {
+			continue
+		}
+		out = append(out, b)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ISBN < out[j].ISBN })
+	return out, nil
 }
 
 // missingReportingStore models a store that reports absence from Delete
@@ -408,6 +425,11 @@ func (blockingStore) Put(ctx context.Context, _ book.Book) error {
 func (blockingStore) Delete(ctx context.Context, _ string) error {
 	<-ctx.Done()
 	return ctx.Err()
+}
+
+func (blockingStore) List(ctx context.Context, _ *string) ([]book.Book, error) {
+	<-ctx.Done()
+	return nil, ctx.Err()
 }
 
 func TestDelete(t *testing.T) {

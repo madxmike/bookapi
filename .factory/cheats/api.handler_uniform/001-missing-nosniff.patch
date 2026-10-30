@@ -1,0 +1,10 @@
+--- a/httpapi/response.go
++++ b/httpapi/response.go
+@@ -95,7 +95,6 @@
+ 	if w.status >= 200 && w.status != http.StatusNoContent && w.status != http.StatusNotModified {
+ 		out.Header().Set("Content-Length", strconv.Itoa(len(w.body)))
+ 	}
+-	out.Header().Set("X-Content-Type-Options", "nosniff")
+ 	out.Header().Set("Cache-Control", "no-store")
+ 	out.WriteHeader(w.status)
+ 	if w.head || w.status == http.StatusNoContent || w.status == http.StatusNotModified {

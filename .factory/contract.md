@@ -51,7 +51,7 @@ Body: `{"title": string, "author": string, "published_year": integer}`.
 ## GET /books
 
 - 200 with a JSON array of book objects.
-- Ordered by `isbn` ascending.
+- Ordered by `isbn` ascending; storage owns the order.
 - An optional `author` query parameter filters to an exact match.
 - No matches returns `200 []`.
 - 503 `unavailable` when storage is unreachable.
@@ -69,8 +69,9 @@ handler, and every error, carries:
 - `X-Content-Type-Options: nosniff`
 - `Cache-Control: no-store`
 
-The headers are applied at one boundary. No handler may write a response outside
-it.
+The headers are applied at one boundary. The top-level handler has a single
+dispatch path, and every response, including route-not-found and panics, passes
+through it. No handler may write a response outside it.
 
 ## Identity
 

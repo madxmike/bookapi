@@ -32,11 +32,23 @@ go run ./cmd/api
 
 | Method | Path | Success | Errors |
 |---|---|---|---|
+| `GET` | `/books` | 200 with a JSON array ordered by ISBN | 503 `unavailable` |
 | `GET` | `/books/{isbn}` | 200 with the record | 400 `invalid_isbn`, 404 `not_found`, 503 `unavailable` |
+| `HEAD` | `/books/{isbn}` | the same status and headers as `GET`, no body | the same as `GET` |
 | `PUT` | `/books/{isbn}` | 200 with the stored record | 400 `invalid_isbn`, 400 `invalid_body`, 413 `payload_too_large`, 503 `unavailable` |
 | `DELETE` | `/books/{isbn}` | 204 with an empty body | 400 `invalid_isbn`, 503 `unavailable` |
 | `GET` | `/healthz` | 200 while the process runs | — |
 | `GET` | `/readyz` | 200 when the database answers | 503 when it does not |
+
+`GET /books` accepts an optional `author` query parameter. It filters to an
+exact author match; no matches returns `200 []`.
+
+Every response, including health, readiness, the route-not-found response, and
+every error, carries `X-Content-Type-Options: nosniff` and
+`Cache-Control: no-store`. The headers and the error envelope are applied at
+one boundary (`httpapi.response.flush`), not by individual handlers. All routes
+come from one table in `httpapi.routes`; registration happens only in the
+table-driven loop in `httpapi.buildMux`.
 
 `PUT` accepts a JSON body of at most 1 MiB:
 

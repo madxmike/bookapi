@@ -1,0 +1,48 @@
+--- 001-missing-nosniff: before revert ---
+--- FAIL: TestEveryRouteIsUniform (0.00s)
+    --- FAIL: TestEveryRouteIsUniform/GET_/healthz (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/GET_/readyz (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/GET_/books (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/PUT_/books/{isbn} (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/GET_/books/{isbn} (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/HEAD_/books/{isbn} (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform/DELETE_/books/{isbn} (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryRouteIsUniform// (0.00s)
+        uniformity_test.go:24: X-Content-Type-Options = "", want nosniff
+--- FAIL: TestEveryErrorClassIsUniform (1.00s)
+    --- FAIL: TestEveryErrorClassIsUniform/healthz (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/readyz_ready (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/readyz_down (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/invalid_isbn (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/invalid_body (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/oversized_body (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/unknown_route (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/unknown_method (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/store_unavailable (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/store_timeout (1.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/delete_no_content (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+    --- FAIL: TestEveryErrorClassIsUniform/head_missing (0.00s)
+        uniformity_test.go:144: X-Content-Type-Options = "", want nosniff
+FAIL
+FAIL	example.com/bookapi/httpapi	1.233s
+FAIL
+--- after revert (must pass) ---
+ok  	example.com/bookapi/httpapi	1.216s

@@ -24,6 +24,10 @@ func (stubStore) Delete(context.Context, string) error {
 	return errors.New("stub store")
 }
 
+func (stubStore) List(context.Context, *string) ([]book.Book, error) {
+	return nil, errors.New("stub store")
+}
+
 func TestLivenessAndReadiness(t *testing.T) {
 	tests := []struct {
 		name       string

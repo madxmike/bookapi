@@ -120,3 +120,48 @@ This supplements the automated handler tests; it is a manual run, not part of
   every interleaving.
 - `code.no_internal_package` checks directory and symlink names. It does not
   inspect file contents, because the property is structural.
+
+## R8-R11 evidence (2026-10-29)
+
+These rows cover the four properties added in this batch. The property
+statements, witnesses, polarity, contract, and scenarios were not changed.
+
+| Property | Class | Artifact | Assumption |
+|---|---|---|---|
+| `api.list_books` | tested | `httpapi/list_head_test.go:TestList` (ordered, exact author filter, `200 []` for no matches, 503 envelope on store error), `TestListTimeoutReturns503`, `TestListEmptyAuthorIsAnExactFilter`; `httpapi/integration_list_head_test.go:TestListIntegrationOrdered`, `TestListIntegrationAuthorFilter`; `httpapi/live_server_test.go:TestRealServerHeadAndList`; `store/store_list_test.go:TestListOrderedAndFiltered`, `TestListNoMatchesIsEmptyNotNil` | none |
+| `api.head_book` | tested | `httpapi/list_head_test.go:TestHeadMirrorsGet` (stored, missing, invalid; same status, `Content-Type`, `Content-Length`, common headers; empty body); `httpapi/integration_list_head_test.go:TestHeadIntegrationMirrorsGet` against Postgres; `httpapi/live_server_test.go:TestRealServerHeadAndList` behind net/http; `TestEveryRouteIsUniform/HEAD_/books/{isbn}` | none |
+| `api.handler_uniform` | tested | By construction: `httpapi/response.go` exposes only `json` (2xx), `text` (2xx), `noContent`, and `fail(failure)`; `response.flush` is the only writer and re-applies both common headers after handler headers. Discovery/behavior: `httpapi/uniformity_test.go:TestEveryRouteIsUniform` walks `s.routes()` and asserts both headers on every entry plus the envelope on every 4xx/5xx; `TestEveryErrorClassIsUniform` covers health, ready, 400, 404, 413, 503, 204, and HEAD. `httpapi/live_server_test.go:TestRealServerHeadAndList` checks both headers on real net/http responses. Negative control `001-missing-nosniff` rejected | none |
+| `api.handler_registration` | tested | `httpapi/discovery_test.go:TestRouteTableIsTheOnlyRegistration` parses the module (test files excluded) and rejects a handler-shaped function absent from `routes`, a `Handle`/`HandleFunc` call outside `buildMux`, a non-table-driven registration inside `buildMux`, and an anonymous/foreign handler in a table entry. Synthetic controls: `TestDiscoveryRejectsDirectMuxRegistration`, `TestDiscoveryRejectsRegistrationOutsideBuildMux`, `TestDiscoveryRejectsLiteralPathInTheTableLoop`, `TestDiscoveryRejectsHandlerOutsideRouteTable`, `TestDiscoveryRejectsAnonymousRouteHandler`, `TestDiscoveryRejectsHandlerStoredInAVariable`. Real-tree controls: `001-direct-mux-registration` (rejected as both a non-table-driven registration and an anonymous handler), `002-orphan-handler` rejected | none |
+
+### Route table and automatic coverage
+
+`httpapi.routes()` is the single table:
+
+| Method | Pattern | Handler |
+|---|---|---|
+| `GET` | `/healthz` | `(*server).healthz` |
+| `GET` | `/readyz` | `(*server).readyz` |
+| `GET` | `/books` | `(*server).list` |
+| `PUT` | `/books/{isbn}` | `(*server).put` |
+| `GET` | `/books/{isbn}` | `(*server).get` |
+| `HEAD` | `/books/{isbn}` | `(*server).get` |
+| `DELETE` | `/books/{isbn}` | `(*server).delete` |
+| (any) | `/` | `(*server).notFound` |
+
+A new route is one entry in `routes()`: `TestEveryRouteIsUniform` iterates the
+table and asserts the common headers and error envelope for it, and the
+discovery check sees the handler reference. `buildMux` is the only function
+that calls `mux.Handle`, and it does so in a `range s.routes()` loop with
+`adapt(rt.handler)`.
+
+### New artifacts
+
+- `.factory/evidence/suite-no-dsn-r8.txt` — `go test ./... -count=1`.
+- `.factory/evidence/suite-with-postgres-r8.txt` — `BOOKAPI_TEST_DSN=... go test ./... -count=1`.
+- `.factory/evidence/suite-with-postgres-race-r8.txt` — `BOOKAPI_TEST_DSN=... go test -race ./... -count=1`.
+- `.factory/evidence/vet-r8.txt` — `go vet ./...` (empty).
+- `.factory/evidence/gofmt-r8.txt` — `gofmt -l .` (empty).
+- `.factory/evidence/cheat-api.handler_registration.txt` — both real-tree cheats rejected, then green after revert.
+- `.factory/evidence/cheat-api.handler_uniform.txt` — missing `nosniff` rejected on every route, then green after revert.
+- `.factory/cheats/api.handler_registration/results.md`.
+- `.factory/cheats/api.handler_uniform/results.md`.

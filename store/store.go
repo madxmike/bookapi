@@ -80,6 +80,37 @@ func (s *Store) Delete(ctx context.Context, isbn string) error {
 	return nil
 }
 
+// List returns the books ordered by ISBN. When author is non-nil, only books
+// whose author is an exact match are returned. The result is never nil.
+func (s *Store) List(ctx context.Context, author *string) ([]book.Book, error) {
+	query := `SELECT isbn, title, author, published_year FROM books`
+	var args []any
+	if author != nil {
+		query += ` WHERE author = $1`
+		args = append(args, *author)
+	}
+	query += ` ORDER BY isbn ASC`
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("list books: %w", err)
+	}
+	defer rows.Close()
+
+	books := []book.Book{}
+	for rows.Next() {
+		var b book.Book
+		if err := rows.Scan(&b.ISBN, &b.Title, &b.Author, &b.PublishedYear); err != nil {
+			return nil, fmt.Errorf("scan book: %w", err)
+		}
+		books = append(books, b)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("list books: %w", err)
+	}
+	return books, nil
+}
+
 // Count returns the number of rows stored under isbn, which is at most one.
 func (s *Store) Count(ctx context.Context, isbn string) (int, error) {
 	const query = `SELECT count(*) FROM books WHERE isbn = $1`

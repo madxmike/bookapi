@@ -48,6 +48,12 @@ scope:
     - id: D17
       decision: Handler is a semantic type: any function with the http.HandlerFunc shape. The route table is the source of truth, and a check fails if a handler is not reachable through it.
       rationale: Handlers are not a declared type in Go, so the property must be enforced by discovery as well as by construction.
+    - id: D18
+      decision: List ordering is owned by storage; the endpoint returns the stored order.
+      rationale: Ordering is a property of the query, and the handler must not re-sort or diverge from it.
+    - id: D19
+      decision: The top-level handler has a single dispatch path; every response, including route-not-found and panics, passes through the uniform boundary.
+      rationale: A property that covers only the routes in the table is bypassed by any second dispatch path.
 
 properties:
   - id: isbn.canonical
@@ -205,7 +211,7 @@ properties:
     scope: repo
     locus: code
     polarity: require
-    statement: Every response from every route carries X-Content-Type-Options nosniff and Cache-Control no-store, and every error response uses the stable JSON envelope.
+    statement: Every response the top-level handler can produce, by any dispatch path, carries X-Content-Type-Options nosniff and Cache-Control no-store, and every error response uses the stable JSON envelope.
     witness: A route response missing either header, or an error body that is not the envelope.
     check: {kind: test, command: go test ./...}
     evidence: none
@@ -216,7 +222,7 @@ properties:
     scope: repo
     locus: code
     polarity: forbid
-    statement: Every handler-shaped function is reachable through the route table, and no route is registered outside it.
+    statement: No handler is reachable outside the route table, whether through a different signature, an alias, a method value, a secondary dispatch path, or a dynamically constructed handler.
     witness: A handler function absent from the route table, or a direct mux registration outside the table.
     check: {kind: test, command: go test ./...}
     evidence: none

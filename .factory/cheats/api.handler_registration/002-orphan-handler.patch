@@ -1,0 +1,11 @@
+--- a/httpapi/httpapi.go
++++ b/httpapi/httpapi.go
+@@ -94,6 +94,8 @@
+ 	return mux
+ }
+ 
++func (s *server) orphan(w *response, r *http.Request) {}
++
+ // adapt lets the mux call a semantic handler. It refuses to run outside the
+ // response boundary, so a handler cannot be served with a raw writer.
+ func adapt(h handler) http.HandlerFunc {

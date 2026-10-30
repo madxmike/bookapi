@@ -69,28 +69,8 @@ func main() {
 	}
 }
 
+// newMux returns the service handler. Every route, including liveness and
+// readiness, lives in httpapi's route table so there is one response boundary.
 func newMux(ready func(context.Context) error, st httpapi.Store) http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", handleHealthz)
-	mux.Handle("GET /readyz", handleReadyz(ready))
-	mux.Handle("/", httpapi.New(st))
-	return mux
-}
-
-func handleHealthz(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("ok"))
-}
-
-func handleReadyz(ready func(context.Context) error) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), time.Second)
-		defer cancel()
-		if err := ready(ctx); err != nil {
-			http.Error(w, "not ready", http.StatusServiceUnavailable)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	}
+	return httpapi.New(st, ready)
 }
